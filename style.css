@@ -1,0 +1,51 @@
+body {
+    margin: 0px;
+    padding:0px;
+    overflow: hidden auto;
+    
+    color: #FFF6EA;
+    background-color: #C7A1D7;
+
+    --col-accent0: #FFE0CA;
+    --col-accent1: #C7A1D7;
+
+    --col-primary0: #3F0082;
+    --col-secondary0: #FFF6EA;
+
+    --col-shadow0: rgba(199, 161, 215, 0.4);
+
+    font-family: 'Quicksand', sans-serif;
+    font-size: 20px;
+
+    caret-color: transparent;
+}
+
+
+/* GENERIC */
+button {
+    width: fit-content;
+    border: hidden;
+    border-radius: 8px;
+    font-family: 'Quicksand', sans-serif;
+}
+
+
+
+/* HEADER */
+
+
+
+/* ADD BOOK FORM */
+
+
+
+
+/* BOOKSHELF */
+
+
+
+
+/* FOOTER/FOOTNOTE */
+
+
+
