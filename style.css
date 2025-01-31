@@ -163,6 +163,17 @@ main {
     font-size: .85rem;
     font-weight: 450;
     letter-spacing: 2%;
+    transition: scale 75ms ease-in, color 100ms ease-in, background-color 100ms ease-in;
+}
+#bookForm > #bookFormSubmit:hover {
+    scale: 1.025;
+    color: var(--col-primary0);
+}
+#bookForm > #bookFormSubmit:active {
+    transition: color 10ms ease-in, background-color 20ms ease-in;
+    scale: .985;
+    color: var(--col-secondary0);
+    background-color: var(--col-accent1);
 }
 
 
@@ -180,34 +191,53 @@ main {
 #searchBook {
     position: relative;
     height: 2.5rem;
+    display:flex;
+    flex-flow: row nowrap;
+    gap: .5rem;
 }
-#searchBook > label {
-    top: 15%;
-    position: absolute;
-    color: color-mix(in srgb, var(--col-accent1) 50%, transparent);
-    pointer-events: none;
-    letter-spacing: 2%;
-}
-#searchBook > label > em {
+/* #searchBook > label > em {
     font-weight: 600;
     letter-spacing: 5%;
-}
-#searchBook > label > button {
-    top: 15%;
-    background-color: color-mix(in srgb, var(--col-secondary0) 75%, transparent);
-    transition: all 200ms ease-in;
+} */
+#searchBook > #searchSubmit {
+    position: relative;
+    padding: .5rem .625rem .3rem;
+    background-color: transparent;
     pointer-events: visible;
+    transition: background-color 200ms ease-in;
+}
+#searchBook > #searchSubmit:hover {
+    transition: background-color 10ms ease-in;
+    background-color: color-mix(in srgb, var(--col-accent1) 50%, transparent);
+}
+#searchBook > #searchSubmit > img {
+    width: 1.325rem;
+    pointer-events: none;
+}
+#searchBook > #searchSubmit:hover > img {
+    content: url("assets/search-book-hover.svg");
 }
 #searchBook > input {
+    padding-left: 1rem;
     height: 100%;
     width: 100%;
     box-sizing: border-box;
-    color: color-mix(in srgb, var(--col-accent1) 50%, transparent);
+    font-family: 'Quicksand', sans-serif;
+    color: var(--col-accent1);
+    font-size: 1.125rem;
+    font-weight: 600;
+    letter-spacing: 2.5%;
     background-color: var(--col-secondary0);
     border-radius: .35rem;
     border: none;
-    transition: color 200ms ease-in;
     box-shadow: 5px 5px 25px color-mix(in srgb, var(--col-accent1) 25%, transparent);
+}
+#searchBook > input::placeholder {
+    font-family: 'Quicksand', sans-serif;
+    color: color-mix(in srgb, var(--col-accent1) 50%, transparent);
+    font-size: 1.125rem;
+    font-weight: 400;
+    letter-spacing: 2%;
 }
 #searchBook > input:focus-visible {
     outline: none;
@@ -221,10 +251,10 @@ main {
     flex-flow: column nowrap;
     gap: 1rem;
     margin: 1rem 0px 0px;
-    max-height: 26.25rem;
-    overflow-y: scroll;
+    max-height: 23.5rem;
+    border-radius: .35rem;
+    overflow-y: auto;
 }
-
 .incomplete-book-item {
     display: flex;
     flex-flow: row nowrap;
@@ -290,6 +320,30 @@ main {
     display: flex;
     flex-flow: column nowrap;
     justify-content: space-around;
+}
+
+#toggleBookList {
+    position: absolute;
+    font-size: 1rem;
+    bottom: 1.25rem;
+    height: 2rem;
+    width: calc(100% - 1.25rem * 2);
+    opacity: .65;
+    color: var(--col-secondary0);
+    background-color: var(--col-accent1);
+    transition: scale 50ms ease-out, opacity 75ms ease-in;
+}
+#toggleBookList:hover {
+    opacity: 1;
+    scale: 1.015;
+}
+#toggleBookList:active {
+    scale: .99;
+}
+#toggleBookList > em {
+    font-style: normal;
+    text-decoration: underline;
+    letter-spacing: 3.5%;
 }
 
 
