@@ -51,7 +51,7 @@
               <label for="bookFormIsComplete">Sudah dibaca?</label> <input id="bookFormIsComplete" type="checkbox" data-testid="bookFormIsCompleteCheckbox"/>
             </div>
             <button id="bookFormSubmit" type="submit" data-testid="bookFormSubmitButton">
-              ke rak <span>belum dibaca</span>
+              <img src="assets/add-book.svg" alt="icon" />ke rak <span>belum dibaca</span>
             </button>
           </form>
         </section>
@@ -77,7 +77,7 @@
             Ini adalah struktur HTML untuk masing-masing buku.
             Pastikan susunan elemen beserta atribut data-testid menyesuaikan seperti contoh ini.
           -->
-          <div class="incomplete-book-item" data-bookid="123123123" data-testid="bookItem">
+          <div class="book-item" data-bookid="123123123" data-testid="bookItem">
             <div class="book-info-wrapper">
               <input class="fontstyle1 book-title" value="Judul Buku 1" data-testid="bookItemTitle" />
               <div class="book-descriptor"> 
@@ -87,14 +87,14 @@
               </div>
             </div>
             <div class="book-option-wrapper">
-              <button data-testid="bookItemIsCompleteButton">Selesai dibaca</button>
-              <button data-testid="bookItemDeleteButton">Hapus Buku</button>
-              <button data-testid="bookItemEditButton">Edit Buku</button>
+              <button data-testid="bookItemIsCompleteButton"><img src="assets/complete-book.svg" alt="mark complete"/></button>
+              <button data-testid="bookItemEditButton" disabled><img src="assets/edit-book.svg" alt="edit"/></button>
+              <button data-testid="bookItemDeleteButton"><img src="assets/delete-book.svg" alt="delete"/></button>
             </div>
           </div>
         </section>
         <button id="toggleBookList" type="button" data-state="toCompletedBookList">
-          Ke rak <em>sudah dibaca</em>
+          <img src="assets/goto-bookshelf.svg" alt="icon" />ke rak <em>sudah dibaca</em>
         </button>
       </section>      
 
