@@ -14,12 +14,11 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&family=Radio+Canada+Big:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
 
-    <!-- Impor script kamu di sini -->
-    <!-- Lampirkan `defer` jika pemanggilan dilakukan dalam <head> -->
+    <!-- Script -->
     <script defer src="main.js"></script>
   </head>
   <body>
-    <div class="bg"></div>
+    <div class="whole-page-bg"></div>
 
     <header>
       <h1 class="fontstyle1">Literacy&nbsp;<span class="fontstyle0">Helper</span></h1>
@@ -59,9 +58,9 @@
         <footer>
           <h1 class="fontstyle1">Stats anda</h1>
           <div class="separator"></div>
-          <p class="stat"><span class="num">5</span>&nbsp;&nbsp;buku belum dibaca.</p>
-          <p class="stat"><span class="num">12</span>&nbsp;&nbsp;buku sudah dibaca.</p>
-          <p class="copy">Belajar Membuat Front-End Web untuk Pemula <br> &copy; Dicoding Academy, 2017-2025</p>        
+          <p class="status"><strong class="status-emphasis">5</strong>&nbsp;&nbsp;buku belum dibaca.</p>
+          <p class="status"><strong class="status-emphasis">12</strong>&nbsp;&nbsp;buku sudah dibaca.</p>
+          <p class="copyright">Belajar Membuat Front-End Web untuk Pemula <br> &copy; Dicoding Academy, 2017-2025</p>        
         </footer>
       </div>
 
@@ -73,10 +72,6 @@
           <input id="searchBookTitle" type="text" data-testid="searchBookFormTitleInput" placeholder="Cari judul di rak Belum dibaca" />
         </form>
         <section id="incompleteBookList" data-testid="incompleteBookList">
-          <!-- 
-            Ini adalah struktur HTML untuk masing-masing buku.
-            Pastikan susunan elemen beserta atribut data-testid menyesuaikan seperti contoh ini.
-          -->
           <div class="book-item" data-bookid="123123123" data-testid="bookItem">
             <div class="book-info-wrapper">
               <input class="fontstyle1 book-title" value="Judul Buku 1" data-testid="bookItemTitle" />
