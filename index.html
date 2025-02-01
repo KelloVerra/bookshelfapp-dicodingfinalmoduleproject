@@ -55,11 +55,11 @@
           </form>
         </section>
 
-        <footer>
+        <footer id="footer">
           <h1 class="fontstyle1">Stats anda</h1>
           <div class="separator"></div>
-          <p class="status"><strong class="status-emphasis">5</strong>&nbsp;&nbsp;buku belum dibaca.</p>
-          <p class="status"><strong class="status-emphasis">12</strong>&nbsp;&nbsp;buku sudah dibaca.</p>
+          <p id="incompleted-books-stat" class="status"><strong class="status-emphasis">5</strong>&nbsp;&nbsp;buku belum dibaca.</p>
+          <p id="completed-books-stat" class="status"><strong class="status-emphasis">12</strong>&nbsp;&nbsp;buku sudah dibaca.</p>
           <p class="copyright">Belajar Membuat Front-End Web untuk Pemula <br> &copy; Dicoding Academy, 2017-2025</p>        
         </footer>
       </div>
@@ -72,7 +72,7 @@
           <input id="searchBookTitle" type="text" data-testid="searchBookFormTitleInput" placeholder="Cari judul di rak Belum dibaca" />
         </form>
         <section id="incompleteBookList" data-testid="incompleteBookList">
-          <div class="book-item" data-bookid="123123123" data-testid="bookItem">
+          <!-- <div class="book-item" data-bookid="123123123" data-testid="bookItem">
             <div class="book-info-wrapper">
               <input class="fontstyle1 book-title" value="Judul Buku 1" data-testid="bookItemTitle" />
               <div class="book-descriptor"> 
@@ -87,7 +87,7 @@
               <button data-testid="bookItemEditButton" disabled><img src="assets/edit-book.svg" alt="edit"/></button>
               <button data-testid="bookItemDeleteButton"><img src="assets/delete-book.svg" alt="delete"/></button>
             </div>
-          </div>
+          </div> -->
         </section>
         <button id="toggleBookList" type="button" data-state="toCompletedBookList">
           <img src="assets/goto-bookshelf.svg" alt="icon" />ke rak <em>sudah dibaca</em>
