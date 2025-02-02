@@ -114,14 +114,14 @@ function onAddBookInputChange(ev, input_element) {
     let semantic_message = "";
 
 
-    if(input_element.value.length === 0) semantic_message = `Mohon diisi dengan valid`;
-    if(input_element.dataset.testid === "bookFormYearInput") {
-        if(input_element.value < 1) semantic_message = `Nilai tidak boleh dibawah 1`;
-        if(input_element.value > new Date().getFullYear()) semantic_message = `Tidak boleh menandakan rilis di masa depan`;
+    if(input_element.id === "bookFormYear") {
+        if(parseInt(input_element.value) < 1) semantic_message = `Nilai tidak boleh dibawah 1`;
+        if(parseInt(input_element.value) > new Date().getFullYear()) semantic_message = `Tidak boleh menandakan rilis di masa depan`;
     } else {
         if(REGEX_INVALID_CHARSET.test(input_element.value)) semantic_message = `Tidak boleh mengandung karakter invalid`;
         if(input_element.value.length > MAX_TITLE_CHARS) semantic_message = `Tidak boleh mengandung karakter invalid`;
     }
+    if(input_element.value.length === 0) semantic_message = `Mohon diisi dengan valid`;
     
     semantic_indicator_element.innerHTML = semantic_message === "" ? "*" : `* (${semantic_message})`;
     semantic_indicator_element.parentElement.parentElement.dataset.has_error = semantic_message !== "";
