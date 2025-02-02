@@ -3,9 +3,11 @@
 */
 
 const BOOK_DATA_STORAGE_KEY = "BOOK_DATA_3kVidx2lOmxJ";
-const BOOKSHELF_STATE_STORAGE_KEY = "BOOKSHELF_STATE_oHc6eW3vR";
+const BOOKLIST_STATE_STORAGE_KEY = "BOOKSHELF_STATE_oHc6eW3vR";
 // const BOOK_INCOMPLETED_COUNT_STORAGE_KEY = "INCOMPLETED_BOOK_COUNT_bXo9jLfQtDICODINGACADEMY";
 // const BOOK_COMPLETED_COUNT_STORAGE_KEY = "COMPLETED_BOOK_COUNT_P7lQdMpxDldzDICODINGACADEMY";
+
+const RENDERED_BOOKLIST = [];
 
 const RERENDER_BOOKSHELF_EVENT = new Event("RERENDER_BOOKSHELF_EVENT");
 
@@ -34,14 +36,24 @@ function generateBookID() {
 }
 
 /**
+ * @returns {String} separated by commas
+ */
+function combineStrings() {
+    if (arguments.length === 0) return "";
+    return Array.from(arguments).reduce((prev, curr, i) => {
+        return `${prev}, ${curr}`
+    });
+}
+
+/**
  * Checks if local data is not defined, then sets with default value
  */
 function checkAndInitializeLocalStorage() {
     if(localStorage.getItem(BOOK_DATA_STORAGE_KEY) === null) 
         localStorage.setItem(BOOK_DATA_STORAGE_KEY, "{}");
     
-    if(localStorage.getItem(BOOKSHELF_STATE_STORAGE_KEY) === null) 
-        localStorage.setItem(BOOKSHELF_STATE_STORAGE_KEY, 0);
+    if(localStorage.getItem(BOOKLIST_STATE_STORAGE_KEY) === null) 
+        localStorage.setItem(BOOKLIST_STATE_STORAGE_KEY, 0);
 }
 
 
@@ -54,31 +66,35 @@ function checkAndInitializeLocalStorage() {
  * @param {int} year
  * @param {boolean} isUnsaved
  * @param {boolean} isComplete
- * @return {HTMLElement} in string form?
+ * @return {HTMLElement} of the book item
  */
-function buildBookItemElement(id, title, author, year, isUnsaved, isComplete) {
+function buildBookItemElement(id, title, author, year, isComplete) {
     const element = document.createElement("div");
     element.classList.add("book-item");
     element.dataset.bookid = String(id);
     element.dataset.testid = "bookItem";
 
-    const additional_message = "";
-    const unsaved_indicator = isUnsaved ? `<p class="book-unsaved">* diubah ${additional_message}</p>` : "";
-
+    // TODO: CHECK THE TEST IDS!!!
     element.innerHTML = `
-        <div class="book-info-wrapper">
-            <input onchange="onBookItemEdited(event)" class="fontstyle1 book-title" placeholder="Title" value="${title}" data-testid="bookItemTitle" />
+        <div class="book-info-wrapper" oninput="onBookItemEdited(event, this)">
+            <input class="fontstyle1 book-title" placeholder="Title" value="${title}" data-testid="bookItemTitle" />
             <div class="book-descriptor"> 
-                <input onchange="onBookItemEdited(event)" value="${author}" type="text" placeholder="Author" class="fontstyle0" data-testid="bookItemAuthor" />
+                <input value="${author}" type="text" placeholder="Author" class="fontstyle0" data-testid="bookItemAuthor" />
                 &nbsp;&nbsp;&bull;&nbsp;&nbsp;
-                <input onchange="onBookItemEdited(event)" value="${String(year)}" type="text" placeholder="Year" class="fontstyle0" data-testid="bookItemYear" />
+                <input value="${String(year)}" type="text" placeholder="Year" class="fontstyle0" data-testid="bookItemYear" />
             </div>
-            ${unsaved_indicator}
+            <p class="book-unsaved" data-type="unsaved-message"></p>
         </div>
         <div class="book-option-wrapper">
-            <button onclick="onBookItemCompleted(event)" data-testid="bookItemIsCompleteButton"><img src="assets/complete-book.svg" alt="mark complete"/></button>
-            <button onclick="onBookItemSaved(event)" data-testid="bookItemEditButton" disabled><img src="assets/edit-book.svg" alt="edit"/></button>
-            <button onclick="onBookItemDeleted(event)" data-testid="bookItemDeleteButton"><img src="assets/delete-book.svg" alt="delete"/></button>
+            ${ !isComplete ?
+                `<button onclick="onBookItemCompleted(event)" data-testid="bookItemIsCompleteButton"><img src="assets/complete-book.svg" alt="mark read"/></button>` :
+                `<button onclick="onBookItemIncompleted(event)" data-testid="bookItemIsCompleteButton"><img src="assets/move-book.svg" alt="mark unread"/></button>`}
+            ${  !isComplete ?
+                `<button onclick="onBookItemSaved(event)" data-testid="bookItemEditButton" disabled><img src="assets/edit-book.svg" alt="edit"/></button>` :
+                `<button onclick="onBookItemSaved(event)" data-testid="bookItemEditButton" disabled><img src="assets/edit-book-alt.svg" alt="edit"/></button>`}
+            ${  !isComplete ?
+                `<button onclick="onBookItemDeleted(event)" data-testid="bookItemDeleteButton"><img src="assets/delete-book.svg" alt="delete"/></button>` :
+                `<button onclick="onBookItemDeleted(event)" data-testid="bookItemDeleteButton"><img src="assets/delete-book-alt.svg" alt="delete"/></button>`}
         </div>`;
         
     return element;
@@ -107,7 +123,7 @@ function onAddBookFormSubmit(ev) {
         year: 0,
         isComplete: false,
     };
-    Array.from(ev.srcElement.children).forEach(input_group => {
+    Array.from(ev.target.children).forEach(input_group => {
         const input_element = input_group.lastElementChild;
         switch(input_element.id) {
             case "bookFormTitle":
@@ -127,6 +143,7 @@ function onAddBookFormSubmit(ev) {
     parsed_book_data[new_book_data.id] = new_book_data;
 
     localStorage.setItem(BOOK_DATA_STORAGE_KEY, JSON.stringify(parsed_book_data));
+    RENDERED_BOOKLIST.push(new_book_data);
     document.dispatchEvent(RERENDER_BOOKSHELF_EVENT);
 }
 
@@ -142,71 +159,129 @@ function onSearch(ev) {
 function onBookshelfStateChange(ev) {
     if(!checkStorageAvailability()) return;
 
-    localStorage.setItem(BOOKSHELF_STATE_STORAGE_KEY, String(
-        (parseInt(localStorage.getItem(BOOKSHELF_STATE_STORAGE_KEY)) + 1) % 2
+    localStorage.setItem(BOOKLIST_STATE_STORAGE_KEY, String(
+        (parseInt(localStorage.getItem(BOOKLIST_STATE_STORAGE_KEY)) + 1) % 2
     ));
+    document.dispatchEvent(RERENDER_BOOKSHELF_EVENT);
 }
 
-function onBookItemEdited(ev) {
-    ev.preventDefault();
-    console.log('triger onBookItemEdited')
-    // document.dispatchEvent(RERENDER_BOOKSHELF_EVENT);
-}
-function onBookItemSaved(ev) {
-    ev.preventDefault();
-    console.log('triger onBookItemSaved')
-    document.dispatchEvent(RERENDER_BOOKSHELF_EVENT);
-}
-function onBookItemCompleted(ev) {
-    ev.preventDefault();
-    console.log('triger onBookItemCompleted')
-    document.dispatchEvent(RERENDER_BOOKSHELF_EVENT);
-}
-function onBookItemIncompleted(ev) {
-    ev.preventDefault();
-    console.log('triger onBookItemIncompleted')
-    document.dispatchEvent(RERENDER_BOOKSHELF_EVENT);
-}
-function onBookItemDeleted(ev) {
-    ev.preventDefault();
-    console.log('triger onBookItemDeleted')
+function reduceBookItem(ev, reduce_function) {
 
-    const this_book_id = ev.srcElement.parentElement.parentElement.dataset.bookid;
+    const this_book_id = ev.target.parentElement.parentElement.dataset.bookid;
     const parsed_book_data = JSON.parse(localStorage.getItem(BOOK_DATA_STORAGE_KEY));
+    let iteration = 0;
     for (const id in parsed_book_data) {
         if (id === this_book_id) {
-            delete parsed_book_data[id];
+            reduce_function(parsed_book_data, id, iteration);
         }
+        ++iteration;
     }
 
     localStorage.setItem(BOOK_DATA_STORAGE_KEY, JSON.stringify(parsed_book_data));
     document.dispatchEvent(RERENDER_BOOKSHELF_EVENT);
 }
+function onBookItemEdited(ev, book_info_wrapper_element) {
+    ev.preventDefault();
+    
+    let additional_messages = [];
 
-function updateBookshelf(bookshelf_wrapper) {
-    if(!checkStorageAvailability()) return;
-    const bookshelf_state = parseInt(localStorage.getItem(BOOKSHELF_STATE_STORAGE_KEY));
-    const bookshelf = bookshelf_wrapper.children[1];
+    // custom validation
+    
+    const title_input = book_info_wrapper_element.children.item(0);
+    if(title_input.value === "") additional_messages.push("<strong>Judul</strong> tidak boleh kosong");
+    else if(title_input.value.length > 22) additional_messages.push("<strong>Judul</strong> tidak boleh melebihi 22 karakter");
+    else if(/[\^\*#%{}\[\]`<>¬@\\]/g.test(title_input.value)) additional_messages.push("<strong>Judul</strong> tidak boleh mengandung karakter invalid");
+    
+    const author_input = book_info_wrapper_element.children.item(1).children.item(0);
+    if(author_input.value === "") additional_messages.push("<strong>Author</strong> tidak boleh kosong");
+    else if(author_input.value.length > 22) additional_messages.push("<strong>Author</strong> tidak boleh melebihi 22 karakter");
+    else if(/[\^\*#%{}\[\]`<>¬@\\]/g.test(author_input.value)) additional_messages.push("<strong>Author</strong> tidak boleh mengandung karakter invalid");
+    
+    const year_input = book_info_wrapper_element.children.item(1).children.item(1);
+    if(year_input.value === "") additional_messages.push("<strong>Year</strong> tidak boleh kosong");
+    else if(parseInt(year_input.value) < 1) additional_messages.push("<strong>Year</strong> tidak boleh dibawah 1");
+    else if(parseInt(year_input.value) > new Date().getFullYear()) additional_messages.push("<strong>Year</strong> tidak boleh menandakan rilis di masa depan");
+    else if((/[^0-9]/g.test(year_input.value))) additional_messages.push("<strong>Year</strong> harus mengandung angka yang valid");
+
+
+    const book_unsaved_indicator = book_info_wrapper_element.lastElementChild;
+    book_unsaved_indicator.innerHTML = additional_messages.length > 0 ? `*diubah (${combineStrings(...additional_messages)})` : `*diubah`;
+    book_info_wrapper_element.dataset.errcount = additional_messages.length; // set bookitem's error coun
+
+    const book_save_button = book_info_wrapper_element.parentElement.lastElementChild.children.item(1);
+    book_save_button.disabled = additional_messages.length > 0;
+}
+function onBookItemSaved(ev) {
+    ev.preventDefault();
+    
+    const book_option_wrapper_element = ev.target.parentElement;
+    const book_item_element = book_option_wrapper_element.parentElement;
+    const book_info_wrapper_element = book_item_element.firstElementChild;
+
+    // set properties
+    reduceBookItem(ev, (storage_item, storage_index, rendered_index) => {
+        storage_item[storage_index].title = book_info_wrapper_element.children.item(0).value;
+        RENDERED_BOOKLIST[rendered_index].title = book_info_wrapper_element.children.item(0).value;
+
+        storage_item[storage_index].author = book_info_wrapper_element.children.item(1).children.item(0).value;
+        RENDERED_BOOKLIST[rendered_index].author = book_info_wrapper_element.children.item(1).children.item(0).value;
+
+        storage_item[storage_index].year = book_info_wrapper_element.children.item(1).children.item(1).value;
+        RENDERED_BOOKLIST[rendered_index].year = book_info_wrapper_element.children.item(1).children.item(1).value;
+    });
+}
+function onBookItemCompleted(ev) {
+    ev.preventDefault();
+    reduceBookItem(ev, (storage_item, storage_index, rendered_index) => {
+        storage_item[storage_index].isComplete = true;
+        RENDERED_BOOKLIST[rendered_index].isComplete = true;
+    });
+}
+function onBookItemIncompleted(ev) {
+    ev.preventDefault();
+    reduceBookItem(ev, (storage_item, storage_index, rendered_index) => {
+        storage_item[storage_index].isComplete = false;
+        RENDERED_BOOKLIST[rendered_index].isComplete = false;
+    });
+}
+function onBookItemDeleted(ev) {
+    ev.preventDefault();
+    reduceBookItem(ev, (storage_item, storage_index, rendered_index) => {
+        delete storage_item[storage_index];
+        RENDERED_BOOKLIST.splice(rendered_index, 1);
+    });
+}
+
+function renderBooklist(bookshelf) {
+    const booklist_state = parseInt(localStorage.getItem(BOOKLIST_STATE_STORAGE_KEY));
+    const booklist = bookshelf.children[1];
 
     
-    if(bookshelf_state === 0) {
-        console.log("incompleted bookshelf updated");
+    if(booklist_state === 0) {
+        booklist.id = 'incompleteBookList';
     } else {
-        console.log("completed bookshelf updated");
+        booklist.id = 'completeBookList';
     }
-    bookshelf.innerHTML = "";
+    booklist.innerHTML = "";
 
-    for (const bookitem of Object.entries(JSON.parse(localStorage.getItem(BOOK_DATA_STORAGE_KEY)))) {
-        bookshelf.appendChild(
+    let iteration = 0;
+    for (const bookitem of RENDERED_BOOKLIST) {
+
+        const display_state = bookitem.isComplete ? 0 : 1;
+        if(booklist_state === display_state) continue;
+
+        if(bookitem.isUnsaved === undefined) RENDERED_BOOKLIST[iteration].isUnsaved = false;
+
+        booklist.appendChild(
             buildBookItemElement(
-                bookitem[1].id, 
-                bookitem[1].title, 
-                bookitem[1].author,
-                bookitem[1].year,
-                false,
-                false
+                bookitem.id, 
+                bookitem.title, 
+                bookitem.author,
+                bookitem.year,
+                bookitem.isComplete
             )
-        )
+        );
+        ++iteration;
     }
 }
 
@@ -246,8 +321,20 @@ function rerenderBookContents(ev) {
     const bookshelf = document.getElementById("bookshelf");
     const footer = document.getElementById("footer");
 
-    updateBookshelf(bookshelf);
+    renderBooklist(bookshelf);
     updateFooterStats(footer);
+}
+function syncBookContents() {
+    if(!checkStorageAvailability()) return;
+    const parsed_book_data = JSON.parse(localStorage.getItem(BOOK_DATA_STORAGE_KEY));
+
+    // empty cached booklist
+    RENDERED_BOOKLIST.length = 0;
+
+    for(const book_data in parsed_book_data) {
+        RENDERED_BOOKLIST.push(parsed_book_data[book_data]);
+        console.log(RENDERED_BOOKLIST);
+    }
 }
 
 function onDOMContentLoaded(ev) {
@@ -276,6 +363,7 @@ function onDOMContentLoaded(ev) {
 
     // --- Render event dispatchs ---
 
+    syncBookContents();
     document.dispatchEvent(RERENDER_BOOKSHELF_EVENT);
 }
 

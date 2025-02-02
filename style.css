@@ -204,6 +204,7 @@ main {
     background-color: color-mix(in srgb, var(--col-secondary0) 35%, transparent);
     border-radius: var(--border-rad);
     min-width: 32rem;
+    max-width: 40rem;
 }
 
 #searchBook {
@@ -317,9 +318,13 @@ main {
 .book-info-wrapper > .book-unsaved {
     margin: 0px;
     font-size: .75rem;
-    font-weight: 700;
+    font-weight: 500;
     letter-spacing: 10%;
     color: var(--col-accent1);
+}
+.book-info-wrapper > .book-unsaved > strong {
+    font-family: 'Radio Canada Big', sans-serif;
+    font-weight: 700;
 }
 .book-info-wrapper > .book-descriptor {
     display: flex;
@@ -403,6 +408,16 @@ main {
     border-radius: .35rem;
     background-color: color-mix(in srgb, var(--col-accent1) 50%, transparent);
     z-index: 0;
+}
+
+#completeBookList > .book-item > .book-info-wrapper > .book-descriptor {
+    color: var(--col-accent0);
+}
+#completeBookList > .book-item > .book-info-wrapper input:focus-visible {
+    border: var(--col-primary0) 1px solid;
+}
+#completeBookList > .book-item > .book-info-wrapper > .book-unsaved {
+    color: var(--col-secondary0);
 }
 
 #completeBookList > .book-item > .book-option-wrapper {
