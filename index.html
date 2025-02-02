@@ -70,7 +70,7 @@
           <button id="searchSubmit" type="submit" data-testid="searchBookFormSubmitButton">
             <img src="assets/search-book.svg" alt="search" />
           </button>
-          <input id="searchBookTitle" type="text" data-testid="searchBookFormTitleInput" placeholder="Cari judul di rak Belum dibaca" required />
+          <input id="searchBookTitle" type="text" maxlength="30" autocapitalize="name" spellcheck="false" pattern="[^\^*#%\{\}\[\]`<>¬@\\]+" data-testid="searchBookFormTitleInput" placeholder="Cari judul di rak Belum dibaca" />
         </form>
         <section id="incompleteBookList" data-testid="incompleteBookList">
           <!-- <div class="book-item" data-bookid="123123123" data-testid="bookItem">

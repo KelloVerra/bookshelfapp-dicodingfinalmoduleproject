@@ -187,10 +187,38 @@ function onAddBookFormSubmit(ev) {
 function onSearch(ev) {
     ev.preventDefault();
 
+    const booklist_state = parseInt(localStorage.getItem(BOOKLIST_STATE_STORAGE_KEY));
+    const booklist = document.querySelector("#bookshelf").children.item(1);
     const search_box = document.querySelector("#searchBookTitle");
-    const search_submit_button = document.querySelector("#searchSubmit");
+    const search_query = new RegExp(search_box.value);
 
-    console.log(search_box.value);
+    if (search_box.value === "") return document.dispatchEvent(RERENDER_BOOKSHELF_EVENT);
+
+    booklist.innerHTML = "";
+
+    const queried_book_items = RENDERED_BOOKLIST.filter(v => {
+        let matches = 0;
+        if (search_query.test(v.title)) matches++; 
+        if (search_query.test(v.author)) matches++; 
+        if (search_query.test(v.year)) matches++; 
+        return matches > 0;
+    });
+
+    for (const bookitem of queried_book_items) {
+
+        const display_state = bookitem.isComplete ? 0 : 1;
+        if(booklist_state === display_state) continue;
+
+        booklist.appendChild(
+            buildBookItemElement(
+                bookitem.id, 
+                bookitem.title, 
+                bookitem.author,
+                bookitem.year,
+                bookitem.isComplete
+            )
+        );
+    }
 }
 
 function onBookshelfStateChange(ev) {
@@ -315,13 +343,10 @@ function renderBooklist(bookshelf) {
     else booklist.id = "completeBookList";
     booklist.innerHTML = "";
 
-    let iteration = 0;
     for (const bookitem of RENDERED_BOOKLIST) {
 
         const display_state = bookitem.isComplete ? 0 : 1;
         if(booklist_state === display_state) continue;
-
-        if(bookitem.isUnsaved === undefined) RENDERED_BOOKLIST[iteration].isUnsaved = false;
 
         booklist.appendChild(
             buildBookItemElement(
@@ -332,7 +357,6 @@ function renderBooklist(bookshelf) {
                 bookitem.isComplete
             )
         );
-        ++iteration;
     }
 }
 
