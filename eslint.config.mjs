@@ -13,6 +13,8 @@ export default [
       "indent": ["warn", 4, { "SwitchCase": 1 }],
       "prefer-const": ["warn"],
       "no-undef": ["off"],
+      "key-spacing": ["warn", { "mode": "minimum", "beforeColon": false}],
+      "curly": ["warn", "multi"]
     },
   }
 ];

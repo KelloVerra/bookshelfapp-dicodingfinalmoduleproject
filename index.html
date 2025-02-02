@@ -34,17 +34,17 @@
             <div class="form-group" data-has_error="true">
               <label for="bookFormTitle">Judul Bacaan <span class="required-indic">*</span></label>
               <br>
-              <input id="bookFormTitle" class="fontstyle0 keyboard-input" type="text" inputmode="latin" required oninput="onAddBookInputChange(event, this)" onblur="onAddBookInputChange(event, this)" data-testid="bookFormTitleInput" />
+              <input id="bookFormTitle" class="fontstyle0 keyboard-input" type="text" inputmode="latin" maxlength="30" required oninput="onAddBookInputChange(event, this)" onblur="onAddBookInputChange(event, this)" data-testid="bookFormTitleInput" />
             </div>
             <div class="form-group" data-has_error="true">
               <label for="bookFormAuthor">Penulis <span class="required-indic">*</span></label>
               <br>
-              <input id="bookFormAuthor" class="fontstyle0 keyboard-input" type="text" inputmode="latin" required oninput="onAddBookInputChange(event, this)" onblur="onAddBookInputChange(event, this)" data-testid="bookFormAuthorInput" />
+              <input id="bookFormAuthor" class="fontstyle0 keyboard-input" type="text" inputmode="latin" maxlength="30" required oninput="onAddBookInputChange(event, this)" onblur="onAddBookInputChange(event, this)" data-testid="bookFormAuthorInput" />
             </div>
             <div class="form-group" data-has_error="true">
               <label for="bookFormYear">Tahun <span class="required-indic">*</span></label>
               <br>
-              <input id="bookFormYear" class="fontstyle0 keyboard-input" type="number" inputmode="numeric" required oninput="onAddBookInputChange(event, this)" onblur="onAddBookInputChange(event, this)" data-testid="bookFormYearInput" />
+              <input id="bookFormYear" class="fontstyle0 keyboard-input" type="number" inputmode="numeric" min="0" max="10000" required oninput="onAddBookInputChange(event, this)" onblur="onAddBookInputChange(event, this)" data-testid="bookFormYearInput" />
             </div>
             <div class="form-group">
               <label for="bookFormIsComplete">Sudah dibaca?</label> <input id="bookFormIsComplete" type="checkbox" data-testid="bookFormIsCompleteCheckbox"/>

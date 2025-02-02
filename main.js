@@ -5,7 +5,7 @@
 const BOOK_DATA_STORAGE_KEY = "BOOK_DATA_3kVidx2lOmxJ";
 const BOOKLIST_STATE_STORAGE_KEY = "BOOKSHELF_STATE_oHc6eW3vR";
 const MAX_TITLE_CHARS = 22;
-const REGEX_INVALID_CHARSET = /[\^\*#%{}\[\]`<>¬@\\]/;
+const REGEX_INVALID_CHARSET = /[\^*#%{}[\]`<>¬@\\]/;
 // const BOOK_INCOMPLETED_COUNT_STORAGE_KEY = "INCOMPLETED_BOOK_COUNT_bXo9jLfQtDICODINGACADEMY";
 // const BOOK_COMPLETED_COUNT_STORAGE_KEY = "COMPLETED_BOOK_COUNT_P7lQdMpxDldzDICODINGACADEMY";
 
@@ -42,8 +42,8 @@ function generateBookID() {
  */
 function combineStrings() {
     if (arguments.length === 0) return "";
-    return Array.from(arguments).reduce((prev, curr, i) => {
-        return `${prev}, ${curr}`
+    return Array.from(arguments).reduce((prev, curr) => {
+        return `${prev}, ${curr}`;
     });
 }
 
@@ -143,10 +143,11 @@ function onAddBookFormSubmit(ev) {
     ev.preventDefault();
 
     if (!checkStorageAvailability()) return;
-    const parsed_book_data = JSON.parse(localStorage.getItem(BOOK_DATA_STORAGE_KEY));
+    const parsed_booklist_data = JSON.parse(localStorage.getItem(BOOK_DATA_STORAGE_KEY));
+    const generated_id = generateBookID();
     
     const new_book_data = {
-        id: generateBookID(),
+        id: generated_id,
         title: "",
         author: "",
         year: 0,
@@ -169,10 +170,12 @@ function onAddBookFormSubmit(ev) {
                 break;
         }
     });
-    parsed_book_data[new_book_data.id] = new_book_data;
+    const pre_inserted_new_book_data = {};
+    pre_inserted_new_book_data[generated_id] = new_book_data;
+    const new_booklist_data = {...pre_inserted_new_book_data, ...parsed_booklist_data}; 
 
-    localStorage.setItem(BOOK_DATA_STORAGE_KEY, JSON.stringify(parsed_book_data));
-    RENDERED_BOOKLIST.push(new_book_data);
+    localStorage.setItem(BOOK_DATA_STORAGE_KEY, JSON.stringify(new_booklist_data));
+    RENDERED_BOOKLIST.unshift(new_book_data);
     document.dispatchEvent(RERENDER_BOOKSHELF_EVENT);
 }
 
@@ -185,7 +188,7 @@ function onSearch(ev) {
     console.log(ev.target.children.namedItem("searchBookTitle").value);
 }
 
-function onBookshelfStateChange(ev) {
+function onBookshelfStateChange() {
     if(!checkStorageAvailability()) return;
 
     localStorage.setItem(BOOKLIST_STATE_STORAGE_KEY, String(
@@ -200,9 +203,7 @@ function reduceBookList(ev, reduce_function) {
     const parsed_book_data = JSON.parse(localStorage.getItem(BOOK_DATA_STORAGE_KEY));
     let iteration = 0;
     for (const id in parsed_book_data) {
-        if (id === this_book_id) {
-            reduce_function(parsed_book_data, id, iteration);
-        }
+        if (id === this_book_id) reduce_function(parsed_book_data, id, iteration);
         ++iteration;
     }
 
@@ -211,7 +212,7 @@ function reduceBookList(ev, reduce_function) {
 function onBookItemEdited(ev, book_info_wrapper_element) {
     ev.preventDefault();
     
-    let additional_messages = [];
+    const additional_messages = [];
 
     // custom validation
     
@@ -297,11 +298,8 @@ function renderBooklist(bookshelf) {
     const booklist = bookshelf.children[1];
 
     
-    if(booklist_state === 0) {
-        booklist.id = 'incompleteBookList';
-    } else {
-        booklist.id = 'completeBookList';
-    }
+    if(booklist_state === 0) booklist.id = 'incompleteBookList';
+    else booklist.id = 'completeBookList';
     booklist.innerHTML = "";
 
     let iteration = 0;
@@ -357,7 +355,7 @@ function updateFooterStats(footer) {
 
 // ----------------- GENERAL EVENT HANDLERS -----------------
 
-function rerenderBookContents(ev) {
+function rerenderBookContents() {
     const bookshelf = document.getElementById("bookshelf");
     const footer = document.getElementById("footer");
 
@@ -371,12 +369,10 @@ function syncBookContents() {
     // empty cached booklist
     RENDERED_BOOKLIST.length = 0;
 
-    for(const book_data in parsed_book_data) {
-        RENDERED_BOOKLIST.push(parsed_book_data[book_data]);
-    }
+    for(const book_data in parsed_book_data) RENDERED_BOOKLIST.push(parsed_book_data[book_data]);
 }
 
-function onDOMContentLoaded(ev) {
+function onDOMContentLoaded() {
     // --- Storage inits ---
 
     checkAndInitializeLocalStorage();
