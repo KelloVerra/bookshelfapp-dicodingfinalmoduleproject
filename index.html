@@ -30,26 +30,26 @@
           <h2 class="fontstyle1">Halo, Mari membaca!</h2>
           <h3>Tambahkan bahan bacaan hari ini.</h3>
           <div class="separator"></div>
-          <form id="bookForm" data-testid="bookForm" autocomplete="off">
-            <div class="form-group">
+          <form id="bookForm" autocomplete="off" oninput="onAddBookFormInput(event, this)" data-testid="bookForm">
+            <div class="form-group" data-has_error="true">
               <label for="bookFormTitle">Judul Bacaan <span class="required-indic">*</span></label>
               <br>
-              <input id="bookFormTitle" class="fontstyle0 keyboard-input" type="text" required data-testid="bookFormTitleInput" />
+              <input id="bookFormTitle" class="fontstyle0 keyboard-input" type="text" required oninput="onAddBookInputChange(event, this)" onblur="onAddBookInputChange(event, this)" data-testid="bookFormTitleInput" />
             </div>
-            <div class="form-group">
+            <div class="form-group" data-has_error="true">
               <label for="bookFormAuthor">Penulis <span class="required-indic">*</span></label>
               <br>
-              <input id="bookFormAuthor" class="fontstyle0 keyboard-input" type="text" required data-testid="bookFormAuthorInput" />
+              <input id="bookFormAuthor" class="fontstyle0 keyboard-input" type="text" required oninput="onAddBookInputChange(event, this)" onblur="onAddBookInputChange(event, this)" data-testid="bookFormAuthorInput" />
             </div>
-            <div class="form-group">
+            <div class="form-group" data-has_error="true">
               <label for="bookFormYear">Tahun <span class="required-indic">*</span></label>
               <br>
-              <input id="bookFormYear" class="fontstyle0 keyboard-input" type="number" required data-testid="bookFormYearInput" />
+              <input id="bookFormYear" class="fontstyle0 keyboard-input" type="number" required oninput="onAddBookInputChange(event, this)" onblur="onAddBookInputChange(event, this)" data-testid="bookFormYearInput" />
             </div>
             <div class="form-group">
               <label for="bookFormIsComplete">Sudah dibaca?</label> <input id="bookFormIsComplete" type="checkbox" data-testid="bookFormIsCompleteCheckbox"/>
             </div>
-            <button id="bookFormSubmit" type="submit" data-testid="bookFormSubmitButton">
+            <button id="bookFormSubmit" type="submit" data-testid="bookFormSubmitButton" disabled>
               <img src="assets/add-book.svg" alt="icon" />ke rak <span>belum dibaca</span>
             </button>
           </form>

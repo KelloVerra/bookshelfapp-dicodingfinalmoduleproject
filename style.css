@@ -191,6 +191,14 @@ main {
 #bookForm > #bookFormSubmit:active > img {
     content: url("assets/add-book-active.svg");
 }
+#bookForm > #bookFormSubmit:disabled {
+    scale: 0.95;
+    color: color-mix(in srgb, var(--col-accent1) 45%, transparent);
+    background-color: color-mix(in srgb, var(--col-secondary0) 50%, transparent);
+}
+#bookForm > #bookFormSubmit:disabled > img {
+    content: url("assets/add-book.svg");
+}
 
 
 

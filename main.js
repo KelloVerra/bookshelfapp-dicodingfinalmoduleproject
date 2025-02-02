@@ -4,6 +4,8 @@
 
 const BOOK_DATA_STORAGE_KEY = "BOOK_DATA_3kVidx2lOmxJ";
 const BOOKLIST_STATE_STORAGE_KEY = "BOOKSHELF_STATE_oHc6eW3vR";
+const MAX_TITLE_CHARS = 22;
+const REGEX_INVALID_CHARSET = /[\^\*#%{}\[\]`<>¬@\\]/;
 // const BOOK_INCOMPLETED_COUNT_STORAGE_KEY = "INCOMPLETED_BOOK_COUNT_bXo9jLfQtDICODINGACADEMY";
 // const BOOK_COMPLETED_COUNT_STORAGE_KEY = "COMPLETED_BOOK_COUNT_P7lQdMpxDldzDICODINGACADEMY";
 
@@ -77,11 +79,11 @@ function buildBookItemElement(id, title, author, year, isComplete) {
     // TODO: CHECK THE TEST IDS!!!
     element.innerHTML = `
         <div class="book-info-wrapper" oninput="onBookItemEdited(event, this)">
-            <input class="fontstyle1 book-title" placeholder="Title" value="${title}" data-testid="bookItemTitle" />
+            <input class="fontstyle1 book-title" placeholder="Judul" value="${title}" data-testid="bookItemTitle" />
             <div class="book-descriptor"> 
-                <input value="${author}" type="text" placeholder="Author" class="fontstyle0" data-testid="bookItemAuthor" />
+                <input value="${author}" type="text" placeholder="Penulis" class="fontstyle0" data-testid="bookItemAuthor" />
                 &nbsp;&nbsp;&bull;&nbsp;&nbsp;
-                <input value="${String(year)}" type="text" placeholder="Year" class="fontstyle0" data-testid="bookItemYear" />
+                <input value="${String(year)}" type="text" placeholder="Tahun" class="fontstyle0" data-testid="bookItemYear" />
             </div>
             <p class="book-unsaved" data-type="unsaved-message"></p>
         </div>
@@ -106,8 +108,35 @@ function buildBookItemElement(id, title, author, year, isComplete) {
 */ 
 
 // ----------------- ADD BOOK FORM EVENT HANDLERS -----------------
-function onAddBookFormChange(ev) {
+function onAddBookInputChange(ev, input_element) {
+    // custom per input validation
+    const semantic_indicator_element = input_element.parentElement.firstElementChild.firstElementChild;
+    let semantic_message = "";
+
+
+    if(input_element.value.length === 0) semantic_message = `Mohon diisi dengan valid`;
+    if(input_element.dataset.testid === "bookFormYearInput") {
+        if(input_element.value < 1) semantic_message = `Nilai tidak boleh dibawah 1`;
+        if(input_element.value > new Date().getFullYear()) semantic_message = `Tidak boleh menandakan rilis di masa depan`;
+    } else {
+        if(REGEX_INVALID_CHARSET.test(input_element.value)) semantic_message = `Tidak boleh mengandung karakter invalid`;
+        if(input_element.value.length > MAX_TITLE_CHARS) semantic_message = `Tidak boleh mengandung karakter invalid`;
+    }
     
+    semantic_indicator_element.innerHTML = semantic_message === "" ? "*" : `* (${semantic_message})`;
+    semantic_indicator_element.parentElement.parentElement.dataset.has_error = semantic_message !== "";
+}
+function onAddBookFormInput(ev, form_element) {
+    // custom per input validation
+    const submit_button = form_element.lastElementChild;
+
+    let can_submit = 0;
+    for(let i = 0; i < 3; i++) {
+        const form_children_element = form_element.children.item(i);
+        if (form_children_element.dataset.has_error === "false") can_submit++; 
+    }
+
+    submit_button.disabled = Boolean(can_submit !== 3);
 }
 
 function onAddBookFormSubmit(ev) {
@@ -188,19 +217,19 @@ function onBookItemEdited(ev, book_info_wrapper_element) {
     
     const title_input = book_info_wrapper_element.children.item(0);
     if(title_input.value === "") additional_messages.push("<strong>Judul</strong> tidak boleh kosong");
-    else if(title_input.value.length > 22) additional_messages.push("<strong>Judul</strong> tidak boleh melebihi 22 karakter");
-    else if(/[\^\*#%{}\[\]`<>¬@\\]/g.test(title_input.value)) additional_messages.push("<strong>Judul</strong> tidak boleh mengandung karakter invalid");
+    else if(title_input.value.length > MAX_TITLE_CHARS) additional_messages.push(`<strong>Judul</strong> tidak boleh melebihi ${MAX_TITLE_CHARS} karakter`);
+    else if(REGEX_INVALID_CHARSET.test(title_input.value)) additional_messages.push("<strong>Judul</strong> tidak boleh mengandung karakter invalid");
     
     const author_input = book_info_wrapper_element.children.item(1).children.item(0);
-    if(author_input.value === "") additional_messages.push("<strong>Author</strong> tidak boleh kosong");
-    else if(author_input.value.length > 22) additional_messages.push("<strong>Author</strong> tidak boleh melebihi 22 karakter");
-    else if(/[\^\*#%{}\[\]`<>¬@\\]/g.test(author_input.value)) additional_messages.push("<strong>Author</strong> tidak boleh mengandung karakter invalid");
+    if(author_input.value === "") additional_messages.push("<strong>Penulis</strong> tidak boleh kosong");
+    else if(author_input.value.length > MAX_TITLE_CHARS) additional_messages.push(`<strong>Penulis</strong> tidak boleh melebihi ${MAX_TITLE_CHARS} karakter`);
+    else if(REGEX_INVALID_CHARSET.test(author_input.value)) additional_messages.push("<strong>Penulis</strong> tidak boleh mengandung karakter invalid");
     
     const year_input = book_info_wrapper_element.children.item(1).children.item(1);
-    if(year_input.value === "") additional_messages.push("<strong>Year</strong> tidak boleh kosong");
-    else if(parseInt(year_input.value) < 1) additional_messages.push("<strong>Year</strong> tidak boleh dibawah 1");
-    else if(parseInt(year_input.value) > new Date().getFullYear()) additional_messages.push("<strong>Year</strong> tidak boleh menandakan rilis di masa depan");
-    else if((/[^0-9]/g.test(year_input.value))) additional_messages.push("<strong>Year</strong> harus mengandung angka yang valid");
+    if(year_input.value === "") additional_messages.push("<strong>Tahun</strong> tidak boleh kosong");
+    else if(parseInt(year_input.value) < 1) additional_messages.push("<strong>Tahun</strong> tidak boleh dibawah 1");
+    else if(parseInt(year_input.value) > new Date().getFullYear()) additional_messages.push("<strong>Tahun</strong> tidak boleh menandakan rilis di masa depan");
+    else if((/[^0-9]/g.test(year_input.value))) additional_messages.push("<strong>Tahun</strong> harus mengandung angka yang valid");
 
 
     const book_unsaved_indicator = book_info_wrapper_element.lastElementChild;
@@ -344,7 +373,6 @@ function syncBookContents() {
 
     for(const book_data in parsed_book_data) {
         RENDERED_BOOKLIST.push(parsed_book_data[book_data]);
-        console.log(RENDERED_BOOKLIST);
     }
 }
 
