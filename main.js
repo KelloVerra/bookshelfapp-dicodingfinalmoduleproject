@@ -4,13 +4,11 @@
 
 const BOOK_DATA_STORAGE_KEY = "BOOK_DATA_3kVidx2lOmxJ";
 const BOOKLIST_STATE_STORAGE_KEY = "BOOKSHELF_STATE_oHc6eW3vR";
+
 const MAX_TITLE_CHARS = 22;
 const REGEX_INVALID_CHARSET = /[\^*#%{}[\]`<>¬@\\]/;
-// const BOOK_INCOMPLETED_COUNT_STORAGE_KEY = "INCOMPLETED_BOOK_COUNT_bXo9jLfQtDICODINGACADEMY";
-// const BOOK_COMPLETED_COUNT_STORAGE_KEY = "COMPLETED_BOOK_COUNT_P7lQdMpxDldzDICODINGACADEMY";
 
 const RENDERED_BOOKLIST = [];
-
 const RERENDER_BOOKSHELF_EVENT = new Event("RERENDER_BOOKSHELF_EVENT");
 
 
@@ -108,7 +106,7 @@ function buildBookItemElement(id, title, author, year, isComplete) {
 */ 
 
 // ----------------- ADD BOOK FORM EVENT HANDLERS -----------------
-function onAddBookInputChange(ev, input_element) {
+function onAddBookInputChange(input_element) {
     // custom per input validation
     const semantic_indicator_element = input_element.parentElement.firstElementChild.firstElementChild;
     let semantic_message = "";
@@ -126,10 +124,14 @@ function onAddBookInputChange(ev, input_element) {
     semantic_indicator_element.innerHTML = semantic_message === "" ? "*" : `* (${semantic_message})`;
     semantic_indicator_element.parentElement.parentElement.dataset.has_error = semantic_message !== "";
 }
-function onAddBookFormInput(ev, form_element) {
-    // custom per input validation
-    const submit_button = form_element.lastElementChild;
-
+function onAddBookIsCompleteChecked(check_element) {
+    const add_book_submit_destination_element = document.querySelector("#bookFormSubmit").lastElementChild;
+    add_book_submit_destination_element.innerHTML = check_element.checked ? "Sudah dibaca" : "Belum dibaca";
+}
+function onAddBookFormInput(form_element) {
+    const submit_button = document.querySelector("#bookFormSubmit");
+    
+    // check all required input's validation
     let can_submit = 0;
     for(let i = 0; i < 3; i++) {
         const form_children_element = form_element.children.item(i);
@@ -184,20 +186,31 @@ function onAddBookFormSubmit(ev) {
 // ----------------- BOOKSHELF EVENT HANDLERS -----------------
 function onSearch(ev) {
     ev.preventDefault();
-    console.log(localStorage);
-    console.log(ev.target.children.namedItem("searchBookTitle").value);
+
+    const search_box = document.querySelector("#searchBookTitle");
+    const search_submit_button = document.querySelector("#searchSubmit");
+
+    console.log(search_box.value);
 }
 
-function onBookshelfStateChange() {
+function onBookshelfStateChange(ev) {
     if(!checkStorageAvailability()) return;
 
-    localStorage.setItem(BOOKLIST_STATE_STORAGE_KEY, String(
-        (parseInt(localStorage.getItem(BOOKLIST_STATE_STORAGE_KEY)) + 1) % 2
-    ));
+    const new_state = (parseInt(localStorage.getItem(BOOKLIST_STATE_STORAGE_KEY)) + 1) % 2;
+    const change_state_button_destination_text_element = ev.target.lastElementChild;
+    const change_state_button_destination_indicator_element = ev.target.firstElementChild;
+    const search_input = document.querySelector("#searchBookTitle");
+
+    change_state_button_destination_text_element.innerHTML = new_state === 0 ? "sudah dibaca" : "belum dibaca"
+    change_state_button_destination_indicator_element.src = new_state === 0 ? "assets/goto-complete-bookshelf.svg" : "assets/goto-incomplete-bookshelf.svg"
+
+    search_input.placeholder = new_state === 0 ? "Cari judul di rak Belum dibaca" : "Cari judul di rak Sudah dibaca";
+
+    localStorage.setItem(BOOKLIST_STATE_STORAGE_KEY, String(new_state));
     document.dispatchEvent(RERENDER_BOOKSHELF_EVENT);
 }
 
-function reduceBookList(ev, reduce_function) {
+function reduceBookItems(ev, reduce_function) {
 
     const this_book_id = ev.target.parentElement.parentElement.dataset.bookid;
     const parsed_book_data = JSON.parse(localStorage.getItem(BOOK_DATA_STORAGE_KEY));
@@ -235,7 +248,7 @@ function onBookItemEdited(ev, book_info_wrapper_element) {
 
     const book_unsaved_indicator = book_info_wrapper_element.lastElementChild;
     book_unsaved_indicator.innerHTML = additional_messages.length > 0 ? `*diubah (${combineStrings(...additional_messages)})` : `*diubah`;
-    book_info_wrapper_element.dataset.errcount = additional_messages.length; // set bookitem's error coun
+    book_info_wrapper_element.dataset.errcount = additional_messages.length; // set bookitem"s error coun
 
     const book_save_button = book_info_wrapper_element.parentElement.lastElementChild.children.item(1);
     const book_move_button = book_info_wrapper_element.parentElement.lastElementChild.children.item(0);
@@ -250,7 +263,7 @@ function onBookItemSaved(ev) {
     const book_info_wrapper_element = book_item_element.firstElementChild;
 
     // set properties
-    reduceBookList(ev, (storage_item, storage_index, rendered_index) => {
+    reduceBookItems(ev, (storage_item, storage_index, rendered_index) => {
         storage_item[storage_index].title = book_info_wrapper_element.children.item(0).value;
         RENDERED_BOOKLIST[rendered_index].title = book_info_wrapper_element.children.item(0).value;
 
@@ -270,7 +283,7 @@ function onBookItemSaved(ev) {
 }
 function onBookItemCompleted(ev) {
     ev.preventDefault();
-    reduceBookList(ev, (storage_item, storage_index, rendered_index) => {
+    reduceBookItems(ev, (storage_item, storage_index, rendered_index) => {
         storage_item[storage_index].isComplete = true;
         RENDERED_BOOKLIST[rendered_index].isComplete = true;
     });
@@ -278,7 +291,7 @@ function onBookItemCompleted(ev) {
 }
 function onBookItemIncompleted(ev) {
     ev.preventDefault();
-    reduceBookList(ev, (storage_item, storage_index, rendered_index) => {
+    reduceBookItems(ev, (storage_item, storage_index, rendered_index) => {
         storage_item[storage_index].isComplete = false;
         RENDERED_BOOKLIST[rendered_index].isComplete = false;
     });
@@ -286,7 +299,7 @@ function onBookItemIncompleted(ev) {
 }
 function onBookItemDeleted(ev) {
     ev.preventDefault();
-    reduceBookList(ev, (storage_item, storage_index, rendered_index) => {
+    reduceBookItems(ev, (storage_item, storage_index, rendered_index) => {
         delete storage_item[storage_index];
         RENDERED_BOOKLIST.splice(rendered_index, 1);
     });
@@ -298,8 +311,8 @@ function renderBooklist(bookshelf) {
     const booklist = bookshelf.children[1];
 
     
-    if(booklist_state === 0) booklist.id = 'incompleteBookList';
-    else booklist.id = 'completeBookList';
+    if(booklist_state === 0) booklist.id = "incompleteBookList";
+    else booklist.id = "completeBookList";
     booklist.innerHTML = "";
 
     let iteration = 0;
@@ -326,7 +339,7 @@ function renderBooklist(bookshelf) {
 
 
 // ----------------- FOOTER EVENT HANDLERS -----------------
-function updateFooterStats(footer) {
+function updateFooterStats() {
 
     // Count book stats
     let incompleted_books_count = 0;
@@ -336,19 +349,12 @@ function updateFooterStats(footer) {
         books_count++;
     });
 
-    // Show stats
-    Object.entries(footer.children).forEach(children => {
-        const element = children[1];
-        const stat_number_children = 0;
-        switch(element.id) {
-            case "incompleted-books-stat":
-                element.children[stat_number_children].innerHTML = incompleted_books_count;
-                break;
-            case "completed-books-stat":
-                element.children[stat_number_children].innerHTML = books_count - incompleted_books_count;
-                break;
-        }
-    });
+    // Update stats
+    const incompleted_books_stat_number_element = document.querySelector("#incompleted-books-stat").firstElementChild; 
+    const completed_books_stat_number_element = document.querySelector("#completed-books-stat").firstElementChild; 
+    
+    incompleted_books_stat_number_element.innerHTML = incompleted_books_count;
+    completed_books_stat_number_element.innerHTML = books_count - incompleted_books_count;
 }
 
 
@@ -357,10 +363,9 @@ function updateFooterStats(footer) {
 
 function rerenderBookContents() {
     const bookshelf = document.getElementById("bookshelf");
-    const footer = document.getElementById("footer");
-
     renderBooklist(bookshelf);
-    updateFooterStats(footer);
+
+    updateFooterStats();
 }
 function syncBookContents() {
     if(!checkStorageAvailability()) return;
