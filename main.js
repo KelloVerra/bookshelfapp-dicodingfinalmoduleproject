@@ -165,7 +165,7 @@ function onBookshelfStateChange(ev) {
     document.dispatchEvent(RERENDER_BOOKSHELF_EVENT);
 }
 
-function reduceBookItem(ev, reduce_function) {
+function reduceBookList(ev, reduce_function) {
 
     const this_book_id = ev.target.parentElement.parentElement.dataset.bookid;
     const parsed_book_data = JSON.parse(localStorage.getItem(BOOK_DATA_STORAGE_KEY));
@@ -178,7 +178,6 @@ function reduceBookItem(ev, reduce_function) {
     }
 
     localStorage.setItem(BOOK_DATA_STORAGE_KEY, JSON.stringify(parsed_book_data));
-    document.dispatchEvent(RERENDER_BOOKSHELF_EVENT);
 }
 function onBookItemEdited(ev, book_info_wrapper_element) {
     ev.preventDefault();
@@ -209,7 +208,9 @@ function onBookItemEdited(ev, book_info_wrapper_element) {
     book_info_wrapper_element.dataset.errcount = additional_messages.length; // set bookitem's error coun
 
     const book_save_button = book_info_wrapper_element.parentElement.lastElementChild.children.item(1);
+    const book_move_button = book_info_wrapper_element.parentElement.lastElementChild.children.item(0);
     book_save_button.disabled = additional_messages.length > 0;
+    book_move_button.disabled = true;
 }
 function onBookItemSaved(ev) {
     ev.preventDefault();
@@ -219,7 +220,7 @@ function onBookItemSaved(ev) {
     const book_info_wrapper_element = book_item_element.firstElementChild;
 
     // set properties
-    reduceBookItem(ev, (storage_item, storage_index, rendered_index) => {
+    reduceBookList(ev, (storage_item, storage_index, rendered_index) => {
         storage_item[storage_index].title = book_info_wrapper_element.children.item(0).value;
         RENDERED_BOOKLIST[rendered_index].title = book_info_wrapper_element.children.item(0).value;
 
@@ -229,27 +230,37 @@ function onBookItemSaved(ev) {
         storage_item[storage_index].year = book_info_wrapper_element.children.item(1).children.item(1).value;
         RENDERED_BOOKLIST[rendered_index].year = book_info_wrapper_element.children.item(1).children.item(1).value;
     });
+
+    const book_unsaved_indicator = book_info_wrapper_element.lastElementChild;
+    const book_save_button = book_item_element.lastElementChild.children.item(1);
+    const book_move_button = book_item_element.lastElementChild.children.item(0);
+    book_unsaved_indicator.innerHTML = "";
+    book_save_button.disabled = true;
+    book_move_button.disabled = false;
 }
 function onBookItemCompleted(ev) {
     ev.preventDefault();
-    reduceBookItem(ev, (storage_item, storage_index, rendered_index) => {
+    reduceBookList(ev, (storage_item, storage_index, rendered_index) => {
         storage_item[storage_index].isComplete = true;
         RENDERED_BOOKLIST[rendered_index].isComplete = true;
     });
+    document.dispatchEvent(RERENDER_BOOKSHELF_EVENT);
 }
 function onBookItemIncompleted(ev) {
     ev.preventDefault();
-    reduceBookItem(ev, (storage_item, storage_index, rendered_index) => {
+    reduceBookList(ev, (storage_item, storage_index, rendered_index) => {
         storage_item[storage_index].isComplete = false;
         RENDERED_BOOKLIST[rendered_index].isComplete = false;
     });
+    document.dispatchEvent(RERENDER_BOOKSHELF_EVENT);
 }
 function onBookItemDeleted(ev) {
     ev.preventDefault();
-    reduceBookItem(ev, (storage_item, storage_index, rendered_index) => {
+    reduceBookList(ev, (storage_item, storage_index, rendered_index) => {
         delete storage_item[storage_index];
         RENDERED_BOOKLIST.splice(rendered_index, 1);
     });
+    document.dispatchEvent(RERENDER_BOOKSHELF_EVENT);
 }
 
 function renderBooklist(bookshelf) {
