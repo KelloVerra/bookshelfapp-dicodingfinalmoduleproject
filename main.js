@@ -52,8 +52,10 @@ function combineStrings() {
  * Checks if local data is not defined, then sets with default value
  */
 function checkAndInitializeLocalStorage() {
-    if(localStorage.getItem(BOOK_DATA_STORAGE_KEY) === null) 
+    if(localStorage.getItem(BOOK_DATA_STORAGE_KEY) === null) {
         localStorage.setItem(BOOK_DATA_STORAGE_KEY, "{}");
+        RENDERED_BOOKLIST.length = 0;
+    }
     
     if(localStorage.getItem(BOOKLIST_STATE_STORAGE_KEY) === null) 
         localStorage.setItem(BOOKLIST_STATE_STORAGE_KEY, 0);
@@ -217,12 +219,14 @@ function onAddBookFormSubmit(ev) {
 function onSearchSubmit(ev) {
     ev.preventDefault();
 
+    if(!checkStorageAvailability()) return;
+    if (alertUnsaved()) return;
+
     const booklist_state = parseInt(localStorage.getItem(BOOKLIST_STATE_STORAGE_KEY));
     const booklist = document.querySelector("#bookshelf").children.item(1);
     const search_box = document.querySelector("#searchBookTitle");
     const search_query = new RegExp(search_box.value, "i");
 
-    if (alertUnsaved()) return;
     booklist.innerHTML = "";
 
     const queried_book_items = RENDERED_BOOKLIST.filter(v => {
