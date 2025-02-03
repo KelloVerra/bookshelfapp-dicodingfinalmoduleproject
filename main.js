@@ -6,7 +6,8 @@ const BOOK_DATA_STORAGE_KEY = "BOOK_DATA_3kVidx2lOmxJ";
 const BOOKLIST_STATE_STORAGE_KEY = "BOOKSHELF_STATE_oHc6eW3vR";
 
 const MAX_TITLE_CHARS = 22;
-const REGEX_INVALID_CHARSET = /[\^*#%{}[\]`<>¬@\\]/;
+const REGEX_INVALID_CHARSET = /[\^\*"'#%{}[\]`<>¬@\\]/;
+const REGEX_INVALID_CHARSTART = /[\s/]/;
 
 const RENDERED_BOOKLIST = [];
 const RERENDER_BOOKSHELF_EVENT = new Event("RERENDER_BOOKSHELF_EVENT");
@@ -75,11 +76,9 @@ function alertUnsaved() {
  */
 function updateUnsaved(booklist) {
     let unsaved_item_count = 0;
-    for (let i = 0; i < booklist.children.length; i++) {
+    for (let i = 0; i < booklist.children.length; i++)
         if (booklist.children.item(i).dataset.unsaved === "true") unsaved_item_count++;
-    }
 
-    console.log(unsaved_item_count);
     SESSIONDATA.has_unsaved_data = unsaved_item_count > 0;
 }
 
@@ -94,9 +93,10 @@ function updateUnsaved(booklist) {
  * @param {boolean} isComplete
  * @return {HTMLElement} of the book item
  */
-function buildBookItemElement(id, title, author, year, isComplete) {
+function buildBookItemElement(id, title, author, year, isComplete, order) {
     const element = document.createElement("div");
     element.classList.add("book-item");
+    element.style = `animation: bookitem-fade-in 300ms ease-out ${( order < 5 ? order * 90 : order * 20 + 4 * 90 )}ms forwards;`;
     element.dataset.unsaved = false;
     element.dataset.bookid = String(id);
     element.dataset.testid = "bookItem";
@@ -104,11 +104,11 @@ function buildBookItemElement(id, title, author, year, isComplete) {
     // TODO: CHECK THE TEST IDS!!!
     element.innerHTML = `
         <div class="book-info-wrapper" oninput="onBookItemEdited(event, this)">
-            <input class="fontstyle1 book-title" placeholder="Judul" value="${title}" data-testid="bookItemTitle" />
+            <input class="fontstyle1 book-title" placeholder="Judul" value="${title}" maxlength="30" inputmode="latin" data-testid="bookItemTitle" />
             <div class="book-descriptor"> 
-                <input value="${author}" type="text" placeholder="Penulis" class="fontstyle0" data-testid="bookItemAuthor" />
+                <input value="${author}" type="text" placeholder="Penulis" class="fontstyle0" maxlength="30" inputmode="latin" data-testid="bookItemAuthor" />
                 &nbsp;&nbsp;&bull;&nbsp;&nbsp;
-                <input value="${String(year)}" type="text" placeholder="Tahun" class="fontstyle0" data-testid="bookItemYear" />
+                <input value="${String(year)}" type="text" placeholder="Tahun" class="fontstyle0" inputmode="numeric" data-testid="bookItemYear" />
             </div>
             <p class="book-unsaved" data-type="unsaved-message"></p>
         </div>
@@ -144,7 +144,8 @@ function onAddBookInputChange(input_element) {
         if(parseInt(input_element.value) > new Date().getFullYear()) semantic_message = `Tidak boleh menandakan rilis di masa depan`;
     } else {
         if(REGEX_INVALID_CHARSET.test(input_element.value)) semantic_message = `Tidak boleh mengandung karakter invalid`;
-        if(input_element.value.length > MAX_TITLE_CHARS) semantic_message = `Tidak boleh mengandung karakter invalid`;
+        if(REGEX_INVALID_CHARSTART.test(input_element.value[0])) semantic_message = `Tidak boleh diawali dengan karakter invalid`;
+        if(input_element.value.length > MAX_TITLE_CHARS) semantic_message = `Tidak boleh melebihi ${MAX_TITLE_CHARS} karakter`;
     }
     if(input_element.value.length === 0) semantic_message = `Mohon diisi dengan valid`;
     
@@ -220,8 +221,6 @@ function onSearch(ev) {
     const search_box = document.querySelector("#searchBookTitle");
     const search_query = new RegExp(search_box.value, "i");
 
-    if (search_box.value === "") return document.dispatchEvent(RERENDER_BOOKSHELF_EVENT);
-
     booklist.innerHTML = "";
 
     const queried_book_items = RENDERED_BOOKLIST.filter(v => {
@@ -232,6 +231,7 @@ function onSearch(ev) {
         return matches > 0;
     });
 
+    let iteration = 0;
     for (const bookitem of queried_book_items) {
 
         const display_state = bookitem.isComplete ? 0 : 1;
@@ -243,9 +243,11 @@ function onSearch(ev) {
                 bookitem.title, 
                 bookitem.author,
                 bookitem.year,
-                bookitem.isComplete
+                bookitem.isComplete,
+                iteration
             )
         );
+        iteration++;
     }
 }
 
@@ -286,14 +288,15 @@ function onBookItemEdited(ev, book_info_wrapper_element) {
     const additional_messages = [];
 
     // custom validation
-    
     const title_input = book_info_wrapper_element.children.item(0);
     if(title_input.value === "") additional_messages.push("<strong>Judul</strong> tidak boleh kosong");
+    else if(REGEX_INVALID_CHARSTART.test(title_input.value[0])) additional_messages.push("<strong>Judul</strong> tidak boleh diawali dengan karakter invalid");
     else if(title_input.value.length > MAX_TITLE_CHARS) additional_messages.push(`<strong>Judul</strong> tidak boleh melebihi ${MAX_TITLE_CHARS} karakter`);
     else if(REGEX_INVALID_CHARSET.test(title_input.value)) additional_messages.push("<strong>Judul</strong> tidak boleh mengandung karakter invalid");
     
     const author_input = book_info_wrapper_element.children.item(1).children.item(0);
     if(author_input.value === "") additional_messages.push("<strong>Penulis</strong> tidak boleh kosong");
+    else if(REGEX_INVALID_CHARSTART.test(author_input.value[0])) additional_messages.push("<strong>Penulis</strong> tidak boleh diawali dengan karakter invalid");
     else if(author_input.value.length > MAX_TITLE_CHARS) additional_messages.push(`<strong>Penulis</strong> tidak boleh melebihi ${MAX_TITLE_CHARS} karakter`);
     else if(REGEX_INVALID_CHARSET.test(author_input.value)) additional_messages.push("<strong>Penulis</strong> tidak boleh mengandung karakter invalid");
     
@@ -379,6 +382,7 @@ function renderBooklist(bookshelf) {
     else booklist.id = "completeBookList";
     booklist.innerHTML = "";
 
+    let iteration = 0;
     for (const bookitem of RENDERED_BOOKLIST) {
 
         const display_state = bookitem.isComplete ? 0 : 1;
@@ -390,9 +394,11 @@ function renderBooklist(bookshelf) {
                 bookitem.title, 
                 bookitem.author,
                 bookitem.year,
-                bookitem.isComplete
+                bookitem.isComplete,
+                iteration
             )
         );
+        iteration++;
     }
 }
 
@@ -432,6 +438,7 @@ function syncBookContents() {
     const parsed_book_data = JSON.parse(localStorage.getItem(BOOK_DATA_STORAGE_KEY));
 
     // empty cached booklist
+    SESSIONDATA.has_unsaved_data = false;
     RENDERED_BOOKLIST.length = 0;
 
     for(const book_data in parsed_book_data) RENDERED_BOOKLIST.push(parsed_book_data[book_data]);

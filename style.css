@@ -72,6 +72,7 @@ header > h1 > span {
 }
 header > img {
     margin-left: auto;
+    width: 2.5rem;
 }
 
 
@@ -297,6 +298,7 @@ main {
     margin: 0px;
     border-radius: .35rem;
     background-color: color-mix(in srgb, var(--col-secondary0) 50%, transparent);
+    opacity: 0;
     z-index: 0;
 }
 
@@ -419,6 +421,7 @@ main {
     width: fit-content;
     border-radius: .35rem;
     background-color: color-mix(in srgb, var(--col-accent1) 50%, transparent);
+    opacity: 0;
     z-index: 0;
 }
 
@@ -518,4 +521,9 @@ footer > .copyright {
 
 
 
+/* ============= KEYFRAMES ============= */
 
+@keyframes bookitem-fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }    
+}
