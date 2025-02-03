@@ -58,6 +58,31 @@ function checkAndInitializeLocalStorage() {
         localStorage.setItem(BOOKLIST_STATE_STORAGE_KEY, 0);
 }
 
+/**
+ * Alert user when they have unsaved book item
+ * @returns {Boolean} of the availability of an unsaved data
+ */
+function alertUnsaved() {
+    if (SESSIONDATA.has_unsaved_data) {
+        window.alert("You have unsaved book data.");
+        return true;
+    }
+    return false;
+}
+
+/**
+ * Updates the status of the booklist whether they have an unsaved book item or not
+ */
+function updateUnsaved(booklist) {
+    let unsaved_item_count = 0;
+    for (let i = 0; i < booklist.children.length; i++) {
+        if (booklist.children.item(i).dataset.unsaved === "true") unsaved_item_count++;
+    }
+
+    console.log(unsaved_item_count);
+    SESSIONDATA.has_unsaved_data = unsaved_item_count > 0;
+}
+
 
 // ----------- ELEMENT BUILDERS -----------
 
@@ -66,13 +91,13 @@ function checkAndInitializeLocalStorage() {
  * @param {string} title
  * @param {string} author
  * @param {int} year
- * @param {boolean} isUnsaved
  * @param {boolean} isComplete
  * @return {HTMLElement} of the book item
  */
 function buildBookItemElement(id, title, author, year, isComplete) {
     const element = document.createElement("div");
     element.classList.add("book-item");
+    element.dataset.unsaved = false;
     element.dataset.bookid = String(id);
     element.dataset.testid = "bookItem";
 
@@ -226,6 +251,7 @@ function onSearch(ev) {
 
 function onBookshelfStateChange(ev) {
     if(!checkStorageAvailability()) return;
+    if(alertUnsaved()) return;
 
     const new_state = (parseInt(localStorage.getItem(BOOKLIST_STATE_STORAGE_KEY)) + 1) % 2;
     const change_state_button_destination_text_element = ev.target.lastElementChild;
@@ -256,6 +282,7 @@ function reduceBookItems(ev, reduce_function) {
 function onBookItemEdited(ev, book_info_wrapper_element) {
     ev.preventDefault();
     
+    const book_item_element = book_info_wrapper_element.parentElement;
     const additional_messages = [];
 
     // custom validation
@@ -285,6 +312,9 @@ function onBookItemEdited(ev, book_info_wrapper_element) {
     const book_move_button = book_info_wrapper_element.parentElement.lastElementChild.children.item(0);
     book_save_button.disabled = additional_messages.length > 0;
     book_move_button.disabled = true;
+    book_item_element.dataset.unsaved = true;
+
+    updateUnsaved(book_item_element.parentElement);
 }
 function onBookItemSaved(ev) {
     ev.preventDefault();
@@ -311,6 +341,9 @@ function onBookItemSaved(ev) {
     book_unsaved_indicator.innerHTML = "";
     book_save_button.disabled = true;
     book_move_button.disabled = false;
+    book_item_element.dataset.unsaved = false;
+
+    updateUnsaved(book_item_element.parentElement);
 }
 function onBookItemCompleted(ev) {
     ev.preventDefault();
@@ -435,3 +468,7 @@ function onDOMContentLoaded() {
 }
 
 document.addEventListener("DOMContentLoaded", onDOMContentLoaded);
+
+
+// extra: prevent page quitting when have unsaved edited book item
+window.onbeforeunload = () => SESSIONDATA.has_unsaved_data ? "You have unsaved edited book entry(es)" : null;
