@@ -58,7 +58,7 @@
           </form>
         </section>
 
-        <footer id="footer">
+        <footer>
           <h1 class="fontstyle1">Stats anda</h1>
           <div class="separator"></div>
           <p id="incompleted-books-stat" class="status"><strong class="status-emphasis">5</strong>&nbsp;&nbsp;buku belum dibaca.</p>
@@ -72,11 +72,11 @@
           <button id="searchSubmit" type="submit" data-testid="searchBookFormSubmitButton">
             <img src="assets/search-book.svg" alt="search" />
           </button>
-          <input id="searchBookTitle" type="text" maxlength="30" autocapitalize="name" spellcheck="false" pattern='[^\^\*"#%\{\}\[\]`<>¬@\\]+' data-testid="searchBookFormTitleInput" placeholder="Cari judul di rak Belum dibaca" />
+          <input id="searchBookTitle" type="text" maxlength="30" autocapitalize="name" spellcheck="false" pattern='[^\^\*"#%\{\}\[\]`<>¬@\\]+' placeholder="Cari judul di rak Belum dibaca" data-testid="searchBookFormTitleInput" />
         </form>
         <section id="incompleteBookList" data-testid="incompleteBookList">
         </section>
-        <button id="toggleBookList" type="button" data-state="toCompletedBookList">
+        <button id="toggleBookList" type="button">
           <img src="assets/goto-complete-bookshelf.svg" alt="[icon]" />ke rak <em>sudah dibaca</em>
         </button>
       </section>

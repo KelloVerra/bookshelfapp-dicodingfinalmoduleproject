@@ -5,11 +5,15 @@
 }
 @media screen and (max-width: 985px) {
     body {
-        padding-bottom: 2rem;
+        padding-bottom: 4rem;
     }
     main {
         flex-flow: column nowrap;
         align-items: center;
+    }
+    #bookForm > #bookFormSubmit {
+        position: relative;
+        margin-top: 1.125rem;
     }
 
     .left-wrapper {
@@ -51,5 +55,10 @@
 
     footer > .copyright {
         text-align: center;
+    }
+
+    
+    #searchBook > input::placeholder {
+        font-size: .9rem;
     }
 }

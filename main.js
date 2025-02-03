@@ -101,14 +101,13 @@ function buildBookItemElement(id, title, author, year, isComplete, order) {
     element.dataset.bookid = String(id);
     element.dataset.testid = "bookItem";
 
-    // TODO: CHECK THE TEST IDS!!!
     element.innerHTML = `
         <div class="book-info-wrapper" oninput="onBookItemEdited(event, this)">
             <input class="fontstyle1 book-title" placeholder="Judul" value="${title}" maxlength="30" inputmode="latin" data-testid="bookItemTitle" />
             <div class="book-descriptor"> 
                 <input value="${author}" type="text" placeholder="Penulis" class="fontstyle0" maxlength="30" inputmode="latin" data-testid="bookItemAuthor" />
                 &nbsp;&nbsp;&bull;&nbsp;&nbsp;
-                <input value="${String(year)}" type="text" placeholder="Tahun" class="fontstyle0" inputmode="numeric" data-testid="bookItemYear" />
+                <input value="${String(year)}" type="number" placeholder="Tahun" class="fontstyle0" inputmode="numeric" data-testid="bookItemYear" />
             </div>
             <p class="book-unsaved" data-type="unsaved-message"></p>
         </div>
@@ -173,6 +172,8 @@ function onAddBookFormSubmit(ev) {
     ev.preventDefault();
 
     if (!checkStorageAvailability()) return;
+    if (alertUnsaved()) return;
+
     const parsed_booklist_data = JSON.parse(localStorage.getItem(BOOK_DATA_STORAGE_KEY));
     const generated_id = generateBookID();
     
@@ -187,16 +188,16 @@ function onAddBookFormSubmit(ev) {
         const input_element = input_group.lastElementChild;
         switch(input_element.id) {
             case "bookFormTitle":
-                new_book_data.title = String(input_element.value);
+                new_book_data.title = String(input_element.value.trim());
                 break;
             case "bookFormAuthor":
-                new_book_data.author = String(input_element.value);
+                new_book_data.author = String(input_element.value.trim());
                 break;
             case "bookFormYear":
-                new_book_data.year = parseInt(input_element.value);
+                new_book_data.year = parseInt(input_element.value.trim());
                 break;
             case "bookFormIsComplete":
-                new_book_data.isComplete = input_element.checked;
+                new_book_data.isComplete = Boolean(input_element.checked);
                 break;
         }
     });
@@ -329,14 +330,17 @@ function onBookItemSaved(ev) {
 
     // set properties
     reduceBookItems(ev, (storage_item, storage_index, rendered_index) => {
-        storage_item[storage_index].title = book_info_wrapper_element.children.item(0).value;
-        RENDERED_BOOKLIST[rendered_index].title = book_info_wrapper_element.children.item(0).value;
+        storage_item[storage_index].title = String(book_info_wrapper_element.children.item(0).value.trim());
+        RENDERED_BOOKLIST[rendered_index].title = String(book_info_wrapper_element.children.item(0).value.trim());
+        book_info_wrapper_element.children.item(0).value = book_info_wrapper_element.children.item(0).value.trim();
 
-        storage_item[storage_index].author = book_info_wrapper_element.children.item(1).children.item(0).value;
-        RENDERED_BOOKLIST[rendered_index].author = book_info_wrapper_element.children.item(1).children.item(0).value;
+        storage_item[storage_index].author = String(book_info_wrapper_element.children.item(1).children.item(0).value.trim());
+        RENDERED_BOOKLIST[rendered_index].author = String(book_info_wrapper_element.children.item(1).children.item(0).value.trim());
+        book_info_wrapper_element.children.item(1).children.item(0).value = book_info_wrapper_element.children.item(1).children.item(0).value.trim();
 
-        storage_item[storage_index].year = book_info_wrapper_element.children.item(1).children.item(1).value;
-        RENDERED_BOOKLIST[rendered_index].year = book_info_wrapper_element.children.item(1).children.item(1).value;
+        storage_item[storage_index].year = parseInt(book_info_wrapper_element.children.item(1).children.item(1).value.trim());
+        RENDERED_BOOKLIST[rendered_index].year = parseInt(book_info_wrapper_element.children.item(1).children.item(1).value.trim());
+        book_info_wrapper_element.children.item(1).children.item(1).value = book_info_wrapper_element.children.item(1).children.item(1).value.trim();
     });
 
     const book_unsaved_indicator = book_info_wrapper_element.lastElementChild;
@@ -367,6 +371,8 @@ function onBookItemIncompleted(ev) {
 }
 function onBookItemDeleted(ev) {
     ev.preventDefault();
+    if (alertUnsaved()) return;
+
     reduceBookItems(ev, (storage_item, storage_index, rendered_index) => {
         delete storage_item[storage_index];
         RENDERED_BOOKLIST.splice(rendered_index, 1);
@@ -375,12 +381,19 @@ function onBookItemDeleted(ev) {
 }
 
 function renderBooklist(bookshelf) {
+
     const booklist_state = parseInt(localStorage.getItem(BOOKLIST_STATE_STORAGE_KEY));
     const booklist = bookshelf.children[1];
 
     
-    if(booklist_state === 0) booklist.id = "incompleteBookList";
-    else booklist.id = "completeBookList";
+    if(booklist_state === 0) { 
+        booklist.id = "incompleteBookList"; 
+        booklist.dataset.testid = "incompleteBookList";
+    }
+    else { 
+        booklist.id = "completeBookList"; 
+        booklist.dataset.testid = "completeBookList";
+    }
     booklist.innerHTML = "";
 
     let iteration = 0;
