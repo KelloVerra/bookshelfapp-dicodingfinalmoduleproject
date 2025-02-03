@@ -450,10 +450,21 @@ function rerenderBookContents() {
 function syncBookContents() {
     if(!checkStorageAvailability()) return;
     const parsed_book_data = JSON.parse(localStorage.getItem(BOOK_DATA_STORAGE_KEY));
+    const parsed_booklist_state = parseInt(JSON.parse(localStorage.getItem(BOOKLIST_STATE_STORAGE_KEY)));
 
     // empty cached booklist
     SESSIONDATA.has_unsaved_data = false;
     RENDERED_BOOKLIST.length = 0;
+
+    // sync bookshelf contexts
+    const search_box = document.querySelector("#searchBookTitle");
+    const toggle_booklist_destination_element = document.querySelector("#toggleBookList").lastElementChild;
+    const toggle_booklist_destination_indicator_element = document.querySelector("#toggleBookList").firstElementChild;
+    
+    toggle_booklist_destination_element.innerHTML = parsed_booklist_state === 0 ? "sudah dibaca" : "belum dibaca";
+    toggle_booklist_destination_indicator_element.src = parsed_booklist_state === 0 ? "assets/goto-complete-bookshelf.svg" : "assets/goto-incomplete-bookshelf.svg";
+
+    search_box.placeholder = parsed_booklist_state === 0 ? "Cari judul di rak Belum dibaca" : "Cari judul di rak Sudah dibaca";
 
     for(const book_data in parsed_book_data) RENDERED_BOOKLIST.push(parsed_book_data[book_data]);
 }
