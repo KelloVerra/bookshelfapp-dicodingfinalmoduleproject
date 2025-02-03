@@ -1,6 +1,55 @@
-@media screen and (max-width: 800px) {
+@media screen and (max-width: 1048px) {
+    .left-wrapper {
+        min-width: 22.5rem;
+    }
+}
+@media screen and (max-width: 985px) {
     body {
-        background-color: black; 
-        /* TODO */
+        padding-bottom: 2rem;
+    }
+    main {
+        flex-flow: column nowrap;
+        align-items: center;
+    }
+
+    .left-wrapper {
+        min-width: 30rem;
+    }
+    #bookshelf {
+        min-width: 27.5rem;
+    }
+    .book-item {
+        max-width: 26.5rem;
+    }
+    #incompleteBookList {
+        margin-bottom: 3rem;
+        min-height: 8rem;
+    }
+    #completeBookList {
+        margin-bottom: 3rem;
+        min-height: 8rem;
+    }
+}
+@media screen and (max-width: 566px) {
+    header {
+        padding-left: 1.25rem;
+        padding-right: 1.25rem;
+    }
+    header > h1 {
+        font-size: 2.125rem;
+    }
+    header > img {
+        width: 2rem;
+    }
+
+    .left-wrapper {
+        min-width: 22rem;
+    }
+    #bookshelf {
+        min-width: 18rem;
+    }
+
+    footer > .copyright {
+        text-align: center;
     }
 }

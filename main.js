@@ -213,7 +213,7 @@ function onAddBookFormSubmit(ev) {
 
 
 // ----------------- BOOKSHELF EVENT HANDLERS -----------------
-function onSearch(ev) {
+function onSearchSubmit(ev) {
     ev.preventDefault();
 
     const booklist_state = parseInt(localStorage.getItem(BOOKLIST_STATE_STORAGE_KEY));
@@ -221,6 +221,7 @@ function onSearch(ev) {
     const search_box = document.querySelector("#searchBookTitle");
     const search_query = new RegExp(search_box.value, "i");
 
+    if (alertUnsaved()) return;
     booklist.innerHTML = "";
 
     const queried_book_items = RENDERED_BOOKLIST.filter(v => {
@@ -462,7 +463,7 @@ function onDOMContentLoaded() {
 
     document.addEventListener("RERENDER_BOOKSHELF_EVENT", rerenderBookContents);
 
-    bookshelf_searchForm.addEventListener("submit", onSearch);
+    bookshelf_searchForm.addEventListener("submit", onSearchSubmit);
     addBookForm.addEventListener("submit", onAddBookFormSubmit);
     bookshelf_changeStateButton.addEventListener("click", onBookshelfStateChange);
 

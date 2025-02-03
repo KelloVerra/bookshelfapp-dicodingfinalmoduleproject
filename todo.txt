@@ -10,7 +10,6 @@ bukti originalitas : https://www.figma.com/design/niV6KOkshy7d7NRxrehOx9/I-Wayan
 
 [ ] Make sure to correctly match EVERY test id's
 [V] Search
-[V] Realtime validation add book from
+[v] Realtime validation add book from
 [v] Bugtesting @ school ig
 [v] Unsaved warning
-[ ]
