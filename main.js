@@ -11,6 +11,8 @@ const REGEX_INVALID_CHARSET = /[\^*#%{}[\]`<>¬@\\]/;
 const RENDERED_BOOKLIST = [];
 const RERENDER_BOOKSHELF_EVENT = new Event("RERENDER_BOOKSHELF_EVENT");
 
+const SESSIONDATA = {has_unsaved_data: false};
+
 
 
 
@@ -183,6 +185,7 @@ function onAddBookFormSubmit(ev) {
 
 
 
+
 // ----------------- BOOKSHELF EVENT HANDLERS -----------------
 function onSearch(ev) {
     ev.preventDefault();
@@ -190,7 +193,7 @@ function onSearch(ev) {
     const booklist_state = parseInt(localStorage.getItem(BOOKLIST_STATE_STORAGE_KEY));
     const booklist = document.querySelector("#bookshelf").children.item(1);
     const search_box = document.querySelector("#searchBookTitle");
-    const search_query = new RegExp(search_box.value);
+    const search_query = new RegExp(search_box.value, "i");
 
     if (search_box.value === "") return document.dispatchEvent(RERENDER_BOOKSHELF_EVENT);
 
@@ -229,8 +232,8 @@ function onBookshelfStateChange(ev) {
     const change_state_button_destination_indicator_element = ev.target.firstElementChild;
     const search_input = document.querySelector("#searchBookTitle");
 
-    change_state_button_destination_text_element.innerHTML = new_state === 0 ? "sudah dibaca" : "belum dibaca"
-    change_state_button_destination_indicator_element.src = new_state === 0 ? "assets/goto-complete-bookshelf.svg" : "assets/goto-incomplete-bookshelf.svg"
+    change_state_button_destination_text_element.innerHTML = new_state === 0 ? "sudah dibaca" : "belum dibaca";
+    change_state_button_destination_indicator_element.src = new_state === 0 ? "assets/goto-complete-bookshelf.svg" : "assets/goto-incomplete-bookshelf.svg";
 
     search_input.placeholder = new_state === 0 ? "Cari judul di rak Belum dibaca" : "Cari judul di rak Sudah dibaca";
 

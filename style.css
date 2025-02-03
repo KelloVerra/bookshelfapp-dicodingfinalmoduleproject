@@ -70,6 +70,9 @@ header > h1 > span {
     letter-spacing: 5%;
     font-weight: 550;
 }
+header > img {
+    margin-left: auto;
+}
 
 
 
